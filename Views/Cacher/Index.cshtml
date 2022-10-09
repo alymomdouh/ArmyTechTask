@@ -1,0 +1,184 @@
+﻿@model ArmyTechTask.viewModels.Cacher.CacherVM;
+@{
+    ViewData["Title"] = "Home page";
+    ///ViewBag.CachierList
+}
+  @if (TempData["success"] != null )
+            {
+                <script type="text/javascript"> 
+                    window.onload = function () {  swal("Good job!", '@TempData["success"]', "success");  }; 
+                </script>
+            }else if(TempData["error"] != null){ <script type="text/javascript"> swal("Good job!", '@TempData["error"]', "error"); </script> }
+<div class="page-header d-md-flex justify-content-between">
+    <div>
+        <h3>Cacher</h3> 
+    </div>
+    <div class="mt-2 mt-md-0">
+        <a href="#" class="btn btn-success AddNewItem" data-toggle="modal" data-target="#mdlNew" title="Add new item">Add new item</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="user-list" class="table table-lg">
+                        <thead>
+                            <tr class="align-content-center">
+                                <th class="align-align-content-center">ID</th>
+                                <th>Casher Name</th>
+                                <th>Branch Name</th> 
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int i = 1;}
+                             @{
+                                    foreach (var item in @ViewBag.CachierList)
+                                    {
+                                        <tr>
+                                          <td>@(i++)</td>
+                                           <td>@item.CashierName</td>
+                                           <td>@item.BranchName</td>
+                                           <td>
+                                            <input type="hidden" class="id" value="@item.Id" />
+                                            <a href="#editModal" class="edit align-content-center btn-primary p-2 m-1" data-toggle="modal">
+                                            <i class="material-icons col-md-5" data-toggle="tooltip" title="Edit">&#xE254;</i>
+                                             edit
+                                            </a> 
+                                           <a class="align-content-center btn-danger p-2 m-1"  asp-controller="Cacher" asp-action="deleteCacher" asp-route-id="@item.Id">delete</a>
+                                           </td> 
+                                        </tr>
+                                    }
+                                } 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mdlNew" class="modal fade modal-item" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Add new Casher</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div id="frmItem"> 
+                <form method="post" asp-controller="Cacher" asp-action="AddCacher"> 
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Cashier Name</label>
+                                    <input type="text" class="form-control" name="CashierName" />
+                                </div>
+                                <div class="form-group">
+                                    <label >Branch</label>
+                                   <select name="BranchId" id="BranchId" class="form-control addBranchselectList"> </select> 
+                              </div>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" name="btnSave" id="btnsubmit" class="btn btn-primary" title="Save">Save</button>
+                    </div>
+                </form>
+                @*</form> *@
+            </div>
+        </div>
+    </div>
+</div>
+<div id="editModal" class="modal fade modal-item" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">update Casher</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="ti-close"></i>
+                </button>
+            </div>
+            <div > 
+                <form method="post" asp-controller="Cacher" asp-action="UpdateCacher">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Cashier Name</label>
+                                    <input type="hidden" class="id" name="id" />
+                                    <input type="text" class="form-control" name="CashierName" />
+                                </div>
+                                <div class="form-group">
+                                    <label >Branch</label>
+                                   <select name="BranchId" id="BranchId" class="form-control updateBranchselectList"> 
+                                   </select> 
+                              </div>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" name="btnSave" id="btnsubmit" class="btn btn-primary" title="Save">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script type="text/javascript">
+
+        //  click edit button
+         $('table .edit').on('click', function () {
+             debugger
+             GetAllBranches("update");
+                    var id = $(this).parent().find('.id').val();
+                    $.ajax({
+                        type: 'GET',
+                        url: '/Cacher/Get/'+id,
+                        success: function (CacherData) { 
+                            $('#editModal input[name="id"]').val(CacherData.id);
+                            $('#editModal input[name="CashierName"]').val(CacherData.cashierName);
+                            $('.updateBranchselectList')[0].val(CacherData.branchId);
+                            ///branchId branchName
+
+                        }
+                    })  
+            }); 
+         $('.AddNewItem').on('click',function(){
+              GetAllBranches("add");
+          })
+            function GetAllBranches(type){  
+                debugger
+                var selectList =(type=="add")? document.getElementsByClassName("addBranchselectList")[0]:document.getElementsByClassName("updateBranchselectList")[0]; 
+                 $.ajax({
+                        type: 'GET',
+                        url: '/Branch/GetAllBranches',
+                        success: function (BranchesData) {
+                            debugger
+                              //Create and append the options
+                            for (var i = 0; i < BranchesData.length; i++) {
+                                var option = document.createElement("option");
+                                option.value = BranchesData[i].id;
+                                option.text = BranchesData[i].branchName;
+                                selectList.appendChild(option);
+                            }
+                        }
+                    })  
+            } 
+    </script>
+}
